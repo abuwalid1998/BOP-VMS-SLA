@@ -1,0 +1,82 @@
+{
+  "name": "bop-vms-sla-personal",
+  "productName": "BOP VMS-SLA Personal",
+  "version": "1.0.0",
+  "description": "Bank of Palestine Vendor Management & SLA - Personal Edition (single user, desktop)",
+  "main": "main/main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dev:web": "node scripts/dev-server.js",
+    "test": "node scripts/run-tests.js",
+    "db:ddl": "node scripts/export-ddl.js --all --out db/generated",
+    "db:reset": "node scripts/reset-db.js",
+    "db:migrate": "node scripts/migrate-db.js",
+    "verify:pdf": "node scripts/verify-report.js",
+    "dist": "electron-builder --win --x64 --publish never"
+  },
+  "build": {
+    "appId": "ps.bop.vms-sla-personal",
+    "productName": "BOP VMS-SLA Personal",
+    "copyright": "Bank of Palestine",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main/**",
+      "renderer/**",
+      "db/generated/**",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "legalTrademarks": "Bank of Palestine"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "BOP VMS-SLA Personal",
+      "menuCategory": "Bank of Palestine",
+      "runAfterFinish": true,
+      "deleteAppDataOnUninstall": false,
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerHeaderIcon": "build/icon.ico",
+      "installerSidebar": "build/installerSidebar.bmp",
+      "uninstallerSidebar": "build/uninstallerSidebar.bmp",
+      "installerHeader": "build/installerHeader.bmp",
+      "artifactName": "BOP-VMS-SLA-Personal-Setup-${version}.exe",
+      "uninstallDisplayName": "BOP VMS-SLA Personal"
+    },
+    "publish": []
+  },
+  "dependencies": {
+    "@cantoo/pdf-lib": "2.5.3",
+    "sql.js": "1.13.0"
+  },
+  "devDependencies": {
+    "electron": "44.9.3",
+    "electron-builder": "26.17.0",
+    "oracledb": "7.0.1",
+    "pg": "8.13.1"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "author": {
+    "name": "Bank of Palestine - Vendor Management Section"
+  }
+}

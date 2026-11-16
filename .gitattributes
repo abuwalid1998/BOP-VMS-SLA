@@ -1,0 +1,9 @@
+# Keep Windows scripts byte-for-byte (CRLF), so raw downloads from GitHub run correctly.
+*.bat -text
+*.cmd -text
+*.docx binary
+*.png binary
+*.jpg binary
+*.ico binary
+*.bmp binary
+*.woff2 binary
