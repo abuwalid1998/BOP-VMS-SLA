@@ -19,9 +19,16 @@ Section. It implements the *VMS-SLA reference architecture* with two connected f
 | [`docs/`](docs/) | `BOP-VMS-SLA-Personal-System-Guide.docx`: every screen, how the system works, how it manages vendor relationships, and its impact. |
 | [`tools/`](tools/) | `load-sample-data.bat`: loads fictional sample data (10 IT sections, 10 vendors, contracts, 42 SLAs, 5 incident reports) into an installed Personal Edition. |
 
+## Download
+
+Ready-to-run installers, the system guide and the sample-data script are on the
+[**Releases**](../../releases/latest) page. They are built automatically on Windows by
+[`.github/workflows/release.yml`](.github/workflows/release.yml) whenever a version tag
+(for example `v1.0.0`) is pushed.
+
 ## Build and install (Windows)
 
-The installers are not stored in this repository (each is over 130 MB). To build one:
+The installers are not stored in the repository itself (each is over 130 MB). To build one yourself:
 
 1. Install Node.js 20 or newer.
 2. Open `personal-edition` (or `full-edition`) and double-click **`build-installer.cmd`**.

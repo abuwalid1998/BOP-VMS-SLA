@@ -1,0 +1,87 @@
+# Builds both Windows installers on a Windows runner, runs the tests, and publishes a
+# GitHub Release with the installers, the system guide, the sample-data script and checksums.
+#
+# Start it by pushing a version tag:   git tag v1.0.1 && git push origin v1.0.1
+# or from the Actions tab: "Release" -> "Run workflow" and enter the tag (e.g. v1.0.0).
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to create, e.g. v1.0.0'
+        required: true
+        default: 'v1.0.0'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.edition }}
+    runs-on: windows-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        edition: [personal-edition, full-edition]
+    defaults:
+      run:
+        working-directory: ${{ matrix.edition }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ${{ matrix.edition }}/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build installer
+        run: npm run dist
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installer-${{ matrix.edition }}
+          path: ${{ matrix.edition }}/dist/*.exe
+          if-no-files-found: error
+
+  release:
+    name: Publish release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: assets
+          pattern: installer-*
+          merge-multiple: true
+
+      - name: Add guide, sample-data script and checksums
+        run: |
+          cp docs/BOP-VMS-SLA-Personal-System-Guide.docx tools/load-sample-data.bat assets/
+          cd assets
+          sha256sum * > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+        run: |
+          gh release create "$TAG" assets/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "BOP VMS-SLA ${TAG#v}" \
+            --notes-file .github/release-notes.md
